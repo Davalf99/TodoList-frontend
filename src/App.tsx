@@ -1,22 +1,44 @@
-import React, { useState } from 'react';
-import axios from "axios";
-
-
-const url = "http://localhost:8080/";
+import React, { useState, useEffect } from 'react';
+import api from './api/items';
 
 function App() {
 
-  const [test, setTest] = useState('test');
+  const [list, setList] = useState(['']);
+  const [item, setItem ]= useState(''); 
+ 
+  const fetchItems = async () => {
+    try {
+      const response = await api.get('/');
+      setList(response.data);
+    } catch {
+      console.log('Error!');
+    }
+  }
 
-    axios.get(url).then((response) => {
-      console.log(response.data);
-      setTest(response.data)
-    });
+  const postItem = async () =>{
+    try{
+      const response = await api.post('/',{item});
+      const items = [...list, response.data];
+      setList(items);
+    }catch{
+      console.log('Error');
+    }
+  }
+
+  useEffect(() => {
+    fetchItems();   
+  }
+    , []);
 
   return (
     <div className="App">
       <h1>Hello World</h1>
-      <p>{test}</p>
+      <input onChange={(event)=>setItem(event.target.value)}></input>
+      <button onClick={postItem}>Add</button>
+      <ul>{list.map((item)=>{
+        return(<li>{item}</li>)
+      })}</ul>
+      
     </div>
   );
 }
